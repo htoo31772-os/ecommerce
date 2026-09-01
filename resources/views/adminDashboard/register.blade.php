@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{-- Title & Logo --}}
+    <title>Register Page</title>
+    <link rel="shortcut icon" href="{{ asset('digitally/admin/images/logo.png') }}" type="image/x-icon">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Load Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    {{-- Toastify CSS Link --}}
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    {{-- Main CSS Link --}}
+    <link rel="stylesheet" href="{{ asset('digitally/admin/css/style.css') }}">
+</head>
+
+<body>
+    <!-- Main Register Section -->
+    <main class="section-padding">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-10 col-lg-8">
+                    <div class="card bg-card border-color shadow-lg overflow-hidden">
+                        <div class="row g-0">
+                            <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center"
+                                style="background-color: var(--secondary-color);">
+                                <!-- image -->
+                                <img src="{{asset('digitally/admin/images/register1.png')}}" class="img img-fluid"
+                                    alt="Register page">
+                            </div>
+
+                            <!-- Column 2: Register Form -->
+                            <div class="col-lg-6">
+                                <div class="card-body p-4 p-md-5">
+                                    <h2 class="text-center text-light mb-4">Create a new account</h2>
+                                    <form action="{{route('admin.register')}}" method="POST">
+                                        @csrf
+                                        {{-- Name --}}
+                                        <div class="form-floating mb-3">
+                                            <input type="text" name="name"
+                                                class="form-control @error('name') is-invalid @enderror"
+                                                id="floatingUsername" placeholder="Username">
+                                            <label for="floatingUsername">Name</label>
+                                            {{-- Name Err --}}
+                                            @error('name')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        {{-- Email --}}
+                                        <div class="form-floating mb-3">
+                                            <input type="email" name="email"
+                                                class="form-control @error('email') is-invalid @enderror"
+                                                id="floatingEmail" placeholder="name@example.com">
+                                            <label for="floatingEmail">E-mail</label>
+                                            {{-- Email Err --}}
+                                            @error('email')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        {{-- Password --}}
+                                        <div class="form-floating mb-3">
+                                            <input type="password" name="password"
+                                                class="form-control @error('password') is-invalid @enderror"
+                                                id="floatingPassword" placeholder="Password">
+                                            <label for="floatingPassword">Password</label>
+                                            {{-- Password Err --}}
+                                            @error('password')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <button class="btn btn-primary w-100 py-3" type="submit">Open Account</button>
+                                    </form>
+
+                                    <p class="text-center text-light mt-4 mb-0">
+                                        Already have an account? <a href="{{ route('admin.showLogin') }}"
+                                            style="color: var(--primary-color);">Login</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+</script>
+{{-- Toastify JS Linke --}}
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+@if (session('error'))
+    <script>
+        Toastify({
+            text: "{{ session('error') }}",
+            gravity: "top",
+            position: "center",
+            style: {
+                background: "red",
+            }
+        }).showToast();
+    </script>
+@endif
+
+</html>
