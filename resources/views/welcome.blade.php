@@ -22,14 +22,27 @@
         rel="stylesheet">
 
     <!-- Main CSS Link -->
-    <link rel="stylesheet" href="{{asset('digitally/user/css/styles.css')}}">
+    <link rel="stylesheet" href="{{ asset('digitally/user/css/styles.css') }}">
     @viteReactRefresh
-    @vite(['resources/js/app.jsx'])
+    @vite(['resources/js/app.jsx','resources/css/app.css'])
 </head>
 
 <body>
-  <div id="root"></div>
+    <div id="root"></div>
+    {{-- loader --}}
+    <div class="loader position-fixed top-50 start-50 translate-middle"></div>
 </body>
+<script>
+    const loader = document.querySelector('.loader');
+    if (loader) {
+        window.addEventListener('load', () => {
+            loader.classList.add('loader-hidden');
+            loader.addEventListener('transitionend', () => {
+                loader.remove();
+            });
+        });
+    }
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
 </script>

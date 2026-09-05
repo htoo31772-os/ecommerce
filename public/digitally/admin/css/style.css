@@ -96,13 +96,15 @@ body {
     color: var(--text-light);
 }
 
-.form-control,.form-select {
+.form-control,
+.form-select {
     background-color: var(--bg-card);
     color: var(--text-light);
     border-color: var(--border-color);
 }
 
-.form-control:focus,.form-select:focus {
+.form-control:focus,
+.form-select:focus {
     background-color: var(--bg-card);
     color: var(--text-light);
     border-color: var(--primary-color);
@@ -127,6 +129,7 @@ body {
     width: 100%;
     height: 100%;
 }
+
 /* Cart */
 .table {
     color: var(--text-light);
@@ -147,3 +150,4 @@ body {
     border-bottom-width: 2px;
     border-color: var(--border-color);
 }
+

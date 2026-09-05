@@ -1,9 +1,11 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/authContext';
 
-const ShoppingCart = ({ isLogin, handleCartCount }) => {
+const ShoppingCart = () => {
+    const { isLogin, handleCartCount } = useContext(AuthContext);
     // Get Cart Items form backend
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);

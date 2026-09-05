@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import RegisterImage from '../../../public/digitally/user/images/register1.png';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { AuthContext } from "../context/authContext";
 
-const Register = ({ setIsLogin }) => {
+const Register = () => {
+    const { setIsLogin } = useContext(AuthContext);
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
@@ -49,7 +51,7 @@ const Register = ({ setIsLogin }) => {
             try {
                 const response = await axios.post('api/register', formData);
                 if (response.data.access_token) {
-                    localStorage.setItem('user',JSON.stringify(response.data.user));
+                    localStorage.setItem('user', JSON.stringify(response.data.user));
                     localStorage.setItem('token', response.data.access_token);
                     navigate('/')
                     toast.success('Registation successful');
@@ -59,7 +61,7 @@ const Register = ({ setIsLogin }) => {
                     setValidationError(error.response.data.errors);
                 } else if (error.response && error.response.data && error.response.data.message) {
                     setGlobalError(error.response.data.message)
-                    toast.error(error.response.data.message,{duration:4000});
+                    toast.error(error.response.data.message, { duration: 4000 });
                 } else {
                     toast.error('Registation failed!. please try again')
                 }

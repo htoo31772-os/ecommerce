@@ -1,11 +1,13 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import Reviews from './review';
+import { AuthContext } from '../context/authContext';
 
 
-const ProductDetail = ({ isLogin, handleCartCount }) => {
+const ProductDetail = () => {
+    const{isLogin,handleCartCount}=useContext(AuthContext);
     // Get Product Detail form Backend
     const { id } = useParams();
     const [product, setProduct] = useState(null);

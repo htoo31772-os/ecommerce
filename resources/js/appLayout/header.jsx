@@ -1,52 +1,12 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/authContext";
 
-const Header = ({ isLogin, setIsLogin, cartUpdateCount, user }) => {
 
-    // logout
-    const handleLogout = async () => {
-        try {
-            await axios.post('/api/logout', {}, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                withCredentials: true
-            })
-        } catch (error) {
-            console.log('Logout failed', error);
-            toast.success('Logout failed!', { duration: 4000 })
-        } finally {
-            localStorage.clear();
-            setIsLogin(false);
-            window.location.replace('/login')
-        }
-    }
-    // Get booking count from backend
-    const [bookingCount, setBookingCount] = useState(0);
-    useEffect(() => {
-        const fetchBookingCount = async () => {
-            const token = localStorage.getItem('token');
-            if (!token || !isLogin) {
-                setBookingCount(0);
-                return;
-            }
-            try {
-                const response = await axios.get('/api/cart', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-                setBookingCount(response.data.count);
-            } catch (error) {
-                setBookingCount(0);
-            }
-        }
-        fetchBookingCount();
-    }, [isLogin, cartUpdateCount])
-
-    console.log("1. User object:", user); // user object ထဲမှာ image_url တကယ်ပါလား?
+const Header = () => {
+    const { isLogin, setIsLogin, cartUpdateCount, user, cartCount } = useContext(AuthContext);
     return (
         <nav
             className="navbar navbar-expand-lg navbar-dark shadow-sm sticky-top"
@@ -155,8 +115,8 @@ const Header = ({ isLogin, setIsLogin, cartUpdateCount, user }) => {
                         </Link>
                         <Link to='/cart' className="nav-link ms-2" title="Cart">
                             <i className="bi bi-cart3 fs-4"></i>
-                            {bookingCount > 0 && (
-                                <span className="badge rounded-pill bg-danger translate-middle-y">{bookingCount}</span>
+                            {cartCount > 0 && (
+                                <span className="badge rounded-pill bg-danger translate-middle-y">{cartCount}</span>
                             )}
                             <span className="d-lg-none ms-2">Cart</span>
                         </Link>

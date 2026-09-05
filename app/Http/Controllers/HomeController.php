@@ -1,13 +1,8 @@
-k<?php
-
+<?php
 namespace App\Http\Controllers;
-
 use App\Models\Brand;
-use App\Models\Review;
 use App\Models\Product;
 use App\Models\Category;
-
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 

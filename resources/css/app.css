@@ -1,11 +1,505 @@
-@import 'tailwindcss';
+:root {
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
-
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --primary-color: #00A9FF;
+    --secondary-color: #4A5568;
+    --text-light: #F7FAFC;
+    --text-muted-light: #A0AEC0;
+    --bg-dark: #1C2A3A;
+    --bg-card: #2D3748;
+    --border-color: #4A5568;
+    --white: #FFFFFF;
 }
+
+/* 2. Typography */
+body {
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    color: var(--text-light);
+    background-color: var(--bg-dark);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.navbar-brand {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    color: var(--text-light);
+}
+
+h2 {
+    font-size: 2.25rem;
+}
+
+/* 36px */
+h3 {
+    font-size: 1.75rem;
+}
+
+/* 28px */
+
+/* 3. Spacing (Using 8pt/rem multiples via Bootstrap) */
+.section-padding {
+    padding-top: 4rem;
+    /* 64px */
+    padding-bottom: 4rem;
+    /* 64px */
+}
+
+/* 4. Buttons (CTA) */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+
+    /* 12px 24px */
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    color: var(--white);
+    /* Ensure text is light */
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #008fdb;
+    /* Darker blue (Hover state) */
+    border-color: #008fdb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    /* Pressed state */
+}
+
+/* --- Component Specific Styles (Dark Theme) --- */
+
+/* Navbar */
+.navbar {
+    border-bottom: 1px solid var(--border-color);
+    /* Dark border */
+}
+
+.nav-link {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.dropdown-menu {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+}
+
+.dropdown-item {
+    color: var(--text-light);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: var(--secondary-color);
+    color: var(--text-light);
+}
+
+.dropdown-divider {
+    border-top-color: var(--border-color);
+}
+
+/* Banner Section */
+.banner-section {
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.4)), url('../../public/digitally/user/images/banner.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 650px;
+    display: flex;
+    align-items: center;
+}
+
+.banner-text {
+    text-transform: uppercase;
+    padding: 2.5rem;
+    color: var(--text-light);
+}
+
+.banner-text h1,
+.banner-text p {
+    color: var(--text-light);
+}
+
+/* Mini Section (Services) */
+.service-box {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    background-color: var(--bg-card);
+    /* Card background */
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.service-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+}
+
+.service-box .service-icon {
+    font-size: 2.5rem;
+    /* 40px */
+    color: var(--primary-color);
+    margin-right: 1.5rem;
+    /* 24px */
+}
+
+.service-box h6 {
+    color: var(--text-light);
+}
+
+.service-box p {
+    color: var(--text-muted-light);
+}
+
+
+/* Category Section */
+.category-card {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background-color: var(--bg-card);
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+}
+
+.category-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.category-card h6 {
+    color: var(--text-light);
+}
+
+
+/* Product Card */
+.product-card {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background-color: var(--bg-card);
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.product-card .card-img-top {
+    height: 250px;
+    object-fit: cover;
+}
+
+.product-card .card-body {
+    color: var(--text-light);
+}
+
+.product-card .card-body h5 {
+    color: var(--text-light);
+}
+
+.product-card .card-text {
+    color: var(--primary-color) !important;
+}
+
+/* Price color */
+
+.product-card .card-footer {
+    background-color: var(--bg-card);
+    border-top: 1px solid var(--border-color);
+}
+
+.product-card .icon-action {
+    color: var(--text-muted-light);
+    font-size: 1.25rem;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.product-card .icon-action:hover {
+    color: var(--primary-color);
+}
+
+/* Featured Section */
+.list-group-item {
+    background-color: transparent;
+    color: var(--text-light);
+    border-color: var(--border-color);
+}
+
+.list-group-item-action:hover,
+.list-group-item-action:focus {
+    background-color: var(--bg-card);
+    color: var(--text-light);
+}
+
+.list-group-flush>.list-group-item {
+    border-width: 0 0 1px;
+}
+
+.list-group-flush:last-child>.list-group-item:last-child {
+    border-bottom-width: 0;
+}
+
+.featured-list-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-light);
+}
+
+.featured-list-item:last-child {
+    border-bottom: none;
+}
+
+.featured-list-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 1rem;
+}
+
+.featured-list-item h6 {
+    color: var(--text-light);
+}
+
+/* Brand Section */
+.brand-item {
+    text-align: center;
+}
+
+.brand-item img {
+    width: 100%;
+    height: 60px;
+    object-fit: contain;
+    filter: grayscale(100%);
+    opacity: 0.7;
+    transition: all 0.3s ease;
+    background-color: var(--white);
+    /* Keep logo BGs white for clarity */
+    border-radius: 8px;
+    padding: 5px;
+}
+
+.brand-item:hover img {
+    filter: grayscale(0%);
+    opacity: 1;
+}
+
+/* About Section */
+#about .text-muted {
+    color: var(--text-muted-light) !important;
+}
+
+/* Payment Section */
+.payment-logo {
+    width: 100%;
+    height: 70px;
+    object-fit: contain;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem;
+    background-color: var(--white);
+    /* Keep logo BGs white */
+}
+
+/* Dark List Group Override */
+.list-group-item {
+    background-color: var(--bg-card);
+    color: var(--text-light);
+    border-color: var(--border-color);
+}
+
+.list-group-item strong,
+.list-group-item .fw-bold {
+    color: var(--text-light);
+}
+
+.list-group-item .text-muted {
+    color: var(--text-muted-light) !important;
+}
+
+
+/* Footer */
+.footer {
+    background-color: var(--bg-dark);
+    /* Main dark bg */
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.footer h5 {
+    color: var(--white);
+    margin-bottom: 1.25rem;
+}
+
+.footer .footer-link {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.footer .footer-link:hover {
+    color: var(--white);
+    padding-left: 5px;
+}
+
+/* Register & Login */
+.bg-card {
+    background-color: var(--bg-card) !important;
+}
+
+.border-color {
+    border-color: var(--border-color) !important;
+}
+
+.form-label {
+    color: var(--text-light);
+}
+
+.form-control {
+    background-color: var(--bg-card);
+    color: var(--text-light);
+    border-color: var(--border-color);
+}
+
+.form-control:focus {
+    background-color: var(--bg-card);
+    color: var(--text-light);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(0, 169, 255, 0.25);
+
+}
+
+.form-control::placeholder {
+    color: var(--text-muted-light);
+}
+
+.form-floating>.form-control {
+    background-color: var(--bg-card);
+}
+
+.form-floating>label {
+    color: var(--text-muted-light);
+}
+
+.auth-graphic {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+/* Cart */
+.table {
+    color: var(--text-light);
+    border-color: var(--border-color);
+}
+
+.table th {
+    color: var(--text-muted-light);
+}
+
+.table> :not(caption)>*>* {
+    background-color: var(--bg-card);
+    /* Apply to cells */
+    border-bottom-width: 1px;
+}
+
+.table thead th {
+    border-bottom-width: 2px;
+    border-color: var(--border-color);
+}
+
+.qty-input {
+    width: 45px;
+    text-align: center;
+    border: none;
+    background: transparent;
+    color: white;
+    font-weight: bold;
+}
+
+.btn-qty {
+    padding: 0.2rem 0.6rem;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background: #1a202c;
+    color: white;
+    transition: 0.3s;
+}
+
+.btn-qty:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+::placeholder {
+    color: #718096 !important;
+}
+
+/* Scroll Up Button */
+#myBtn {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 30px;
+    padding: 12px 10px;
+    border-radius: 50px;
+    transition: 0.5s ease;
+}
+/* Preloader */
+.loader-hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.loader {
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    --r1: 154%;
+    --r2: 68.5%;
+    width: 60px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+        radial-gradient(var(--r1) var(--r2) at top, #0000 79.5%, #269af2 80%),
+        radial-gradient(var(--r1) var(--r2) at bottom, #269af2 79.5%, #0000 80%),
+        radial-gradient(var(--r1) var(--r2) at top, #0000 79.5%, #269af2 80%),
+        #ccc;
+    background-size: 50.5% 220%;
+    background-position: -100% 0%, 0% 0%, 100% 0%;
+    background-repeat: no-repeat;
+    animation: l9 2s infinite linear;
+}
+
+@keyframes l9 {
+    33% {
+        background-position: 0% 33%, 100% 33%, 200% 33%
+    }
+
+    66% {
+        background-position: -100% 66%, 0% 66%, 100% 66%
+    }
+
+    100% {
+        background-position: 0% 100%, 100% 100%, 200% 100%
+    }
+}
+

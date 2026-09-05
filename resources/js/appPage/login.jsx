@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import LoginImage from "../../../public/digitally/user/images/login.jpg"
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
-const Login = ({setIsLogin}) => {
+import { AuthContext } from "../context/authContext";
+const Login = () => {
+    const{setIsLogin}=useContext(AuthContext);
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: '',
