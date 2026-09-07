@@ -15,63 +15,42 @@ class UserController extends Controller
     //User Register
     public function register(Request $request)
     {
-        $validator = validator::make($request->all(), [
+        validator::make($request->all(), [
             'name' => 'required|string',
-            'email' => 'required|email|unique:users',
+            'email' => 'required|string|email|lowercase|unique:users',
             'password' => 'required|min:8'
-        ]);
-        if ($validator->fails()) {
-            return $this->handleValidationError($validator);
-        }
+        ])->validate();
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password)
         ]);
-        Auth::login($user);
-        $request->session()->regenerate();
-        $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json([
             'status' => 'success',
-            'message' => 'Registation successful!',
-            'user' => $user,
-            'access_token' => $token
+            'message' => 'Registation successful!'
         ], 200);
     }
     // User Login
     public function login(Request $request)
     {
-        $validator = validator::make($request->all(), [
-            'email' => 'required|email',
+        validator::make($request->all(), [
+            'email' => 'required|string|email',
             'password' => 'required|min:8'
-        ]);
-        if ($validator->fails()) {
-            $errors = $validator->errors()->getMessages();
-            $errorMessage = [];
-            foreach ($errors as $error => $message) {
-                $errorMessage[$error] = $message[0];
-            }
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Login failed',
-                'errors' => $errorMessage
-            ], 422);
+        ])->validate();
+        $user = User::where('email', strtolower($request->email))->first();
+        if (!$user) {
+            return response()->json(['message' => "ကျေးဇူးပြုပြီး အကောင့်ဝင်ပေးပါ"], 401);
         }
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            $user = User::where('email', $request->email)->first();
-            $request->session()->regenerate();
-            $token = $user->createToken('auth_token')->plainTextToken;
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Login successful',
-                'user' => $user,
-                'access_token' => $token
-            ], 200);
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => "Email (သို့မဟုတ်) Password မှားယွင်းနေပါသည်။"], 401);
         }
+        $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json([
-            'status' => 'error',
-            'message' => 'Failed login. Please try again!'
-        ], 401);
+            'status' => 'success',
+            'message' => 'Login successful',
+            'user' => $user,
+            'access_token' => $token
+        ], 200);
     }
     // User Logout
     public function logout(Request $request)
@@ -104,14 +83,12 @@ class UserController extends Controller
     // User Update Profile
     public function update(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        Validator::make($request->all(), [
             'name' => 'required|string',
             'phone' => 'nullable|string|max:15',
             'address' => 'nullable|string|max:500'
-        ]);
-        if ($validator->fails()) {
-            return $this->handleValidationError($validator);
-        }
+        ])->validate();
+
         $user = Auth::user();
         $data = [
             'name' => $request->name,
@@ -128,14 +105,11 @@ class UserController extends Controller
     // User Change Password
     public function changePasswrod(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        Validator::make($request->all(), [
             'currentPassword' => 'required',
             'newPassword' => 'required|different:currentPassword|min:8',
             'confirmPassword' => 'required|same:newPassword',
-        ]);
-        if ($validator->fails()) {
-            return $this->handleValidationError($validator);
-        }
+        ])->validate();
         $user = Auth::user();
         if (Hash::check($request->currentPassword, $user->password)) {
             $newPassword = Hash::make($request->newPassword);
@@ -153,12 +127,10 @@ class UserController extends Controller
     // User Update Image profile
     public function updateImage(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        Validator::make($request->all(), [
             'image' => 'required|image|mimes:png,jpg,jpeg'
-        ]);
-        if ($validator->fails()) {
-            return $this->handleValidationError($validator);
-        }
+        ])->validate();
+
         $user = Auth::user();
         if ($user->image) {
             $oldImage = 'profile/user/' . $user->image;
@@ -181,19 +153,5 @@ class UserController extends Controller
     {
         $users = User::paginate(10);
         return view('adminDashboard.user.index', compact('users'));
-    }
-    // Private function for validation
-    private function handleValidationError($validator)
-    {
-        $errors = $validator->errors()->getMessages();
-        $errorMessage = [];
-        foreach ($errors as $error => $message) {
-            $errorMessage[$error] = $message[0];
-        }
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Validation Failed',
-            'errors' => $errorMessage
-        ], 422);
     }
 }

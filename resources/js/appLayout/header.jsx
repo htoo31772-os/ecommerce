@@ -7,6 +7,26 @@ import { AuthContext } from "../context/authContext";
 
 const Header = () => {
     const { isLogin, setIsLogin, cartUpdateCount, user, cartCount } = useContext(AuthContext);
+    // logout
+    const handleLogout = async () => {
+        try {
+            await axios.post('/api/logout', {}, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                withCredentials: true
+            })
+        } catch (error) {
+            console.log('Logout failed', error);
+            toast.success('Logout failed!', { duration: 4000 })
+        } finally {
+            localStorage.clear();
+            setIsLogin(false);
+            window.location.replace('/login')
+        }
+    }
+
+    console.log("1. User object:", user); // user object ထဲမှာ image_url တကယ်ပါလား?
     return (
         <nav
             className="navbar navbar-expand-lg navbar-dark shadow-sm sticky-top"

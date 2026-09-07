@@ -30,7 +30,7 @@ const MainRouter = () => {
             <Routes>
                 <Route path='/' element={<Home />} />
                 <Route path='/register' element={isLogin ? <Navigate to="/login" /> : <Register />} />
-                <Route path='/login' />
+                <Route path='/login' element={isLogin ? <Navigate to="/" /> : <Login />} />
                 <Route path='/profile' element={
                     <ProtectedRoute>
                         <Profile />
