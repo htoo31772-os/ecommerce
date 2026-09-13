@@ -1,28 +1,30 @@
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/authContext";
-
+import { Link} from "react-router-dom";
+import { AuthContext } from "../context/authContext.jsx";
+import { authService } from "../service/authServices";
+import {getStorageImage} from "../Utils/useImage";
 
 const Header = () => {
-    const { isLogin, setIsLogin, cartUpdateCount, user, cartCount } = useContext(AuthContext);
+    const { isLogin, setIsLogin, cartUpdateCount, user, setUser, cartCount } = useContext(AuthContext);
     // logout
     const handleLogout = async () => {
+        if (!isLogin) return;
         try {
-            await axios.post('/api/logout', {}, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                withCredentials: true
-            })
+            await authService.logout();
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setUser(null);
+            setIsLogin(false);
+            window.location.href = "/login"
+            toast.success('အကောင့်ထွက်သွားပါပြီ။', { duration: 4000 });
+
         } catch (error) {
             console.log('Logout failed', error);
-            toast.success('Logout failed!', { duration: 4000 })
-        } finally {
             localStorage.clear();
-            setIsLogin(false);
-            window.location.replace('/login')
+            window.location.href = "/login";
+            toast.success('Logout failed!', { duration: 4000 })
         }
     }
 
@@ -125,12 +127,7 @@ const Header = () => {
                     {/* Right Icons */}
                     <div className="d-flex align-items-center">
                         <Link to='/profile' className="nav-link mx-2" title="Account">
-                            {user?.image_url && user.image_url !== 'http://127.0.0.1:8000/storage/profile/user' ? (
-                                <img src={user.image_url} className="img img-fluid rounded-pill" alt="User Image" style={{ height: '25px', width: '25px' }} />
-                            ) : (
-                                <img src='/images/user.jpg' className="img img-fluid rounded-pill" alt="User Image" style={{ height: '25px', width: '25px' }} />
-                            )}
-
+                            <img src={getStorageImage(user?.image_url,'profile')} className="img img-fluid rounded-pill" alt="User Image" style={{ height: '25px', width: '25px' }} />
                             <span className="d-lg-none ms-2">Account</span>
                         </Link>
                         <Link to='/cart' className="nav-link ms-2" title="Cart">

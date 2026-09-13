@@ -47,4 +47,4 @@ Route::middleware(['admin'])->prefix('admin')->group(function () {
 });
 Route::get('/{any}', function () {
     return view('welcome'); // React entry
-})->where('any', '.*');
+})->where('any', '^(?!storage|api).*$');

@@ -55,12 +55,7 @@ class UserController extends Controller
     // User Logout
     public function logout(Request $request)
     {
-        if ($request->user()) {
-            $request->user()->tokens()->delete();
-        }
-        Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $request->user()->currentAccessToken()->delete();
         return response()->json([
             'status' => 'success',
             'message' => 'Logged out fully'
@@ -69,16 +64,9 @@ class UserController extends Controller
     // User Profile
     public function profile()
     {
-        $authenticatedUser = Auth::user();
-        if ($authenticatedUser) {
-            return response()->json([
-                'user' => $authenticatedUser
-            ], 200);
-        }
         return response()->json([
-            'status' => 'error',
-            'message' => 'Unauthenticated'
-        ], 401);
+            'user' => Auth::user()
+        ], 200);
     }
     // User Update Profile
     public function update(Request $request)
@@ -103,7 +91,7 @@ class UserController extends Controller
         ]);
     }
     // User Change Password
-    public function changePasswrod(Request $request)
+    public function changePassword(Request $request)
     {
         Validator::make($request->all(), [
             'currentPassword' => 'required',
@@ -122,31 +110,39 @@ class UserController extends Controller
         return response()->json([
             'status' => 'error',
             'message' => 'Incorrect Password',
-        ], 401);
+        ], 422);
     }
     // User Update Image profile
-    public function updateImage(Request $request)
-    {
-        Validator::make($request->all(), [
-            'image' => 'required|image|mimes:png,jpg,jpeg'
-        ])->validate();
+  public function updateImage(Request $request)
+{
+    Validator::make($request->all(), [
+        'image' => 'required|image|mimes:png,jpg,jpeg|max:2048'
+    ])->validate();
 
-        $user = Auth::user();
-        if ($user->image) {
-            $oldImage = 'profile/user/' . $user->image;
-            Storage::disk('public')->exists($oldImage);
-            Storage::disk('public')->delete($oldImage);
-        }
-        $imageName = uniqid() . $request->file('image')->getClientOriginalName();
-        $request->file('image')->storeAs('profile/user', $imageName, 'public');
-        $user->image = $imageName;
-        $user->save();
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Profile image updated successfully',
-            'user' => $user
-        ], 200);
+    $user = Auth::user();
+    $oldImage = $user->image;
+
+    $file = $request->file('image');
+
+    // အရင်က သုံးခဲ့ဖူးတဲ့အတိုင်း unique ဖြစ်အောင် time() ထည့်ပြီး သိမ်းတာ ပိုစိတ်ချရပါတယ်
+    $imageName = time() . '_' . $file->getClientOriginalName();
+
+    $file->storeAs('profile', $imageName, 'public');
+
+    $user->update([
+        'image' => $imageName
+    ]);
+
+    if ($oldImage) {
+        Storage::disk('public')->delete('profile/' . $oldImage);
     }
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Profile image updated successfully',
+        'user' => $user
+    ], 200);
+}
     /* -----------------------------------------------------------Admin-------------------------------------------------------- */
     // User List
     public function userList()

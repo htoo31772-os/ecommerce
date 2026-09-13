@@ -27,11 +27,6 @@ class User extends Authenticatable
         'image',
         'password',
     ];
-    protected $appends = ['image_url'];
-    public function getImageUrlAttribute()
-    {
-        return asset('storage/profile/user/' . $this->image);
-    }
     public function likedProducts()
     {
         return $this->belongsToMany(Product::class, 'likes');
