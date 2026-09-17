@@ -1,58 +1,13 @@
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
+import { useProduct } from '../hook/useProduct';
 const Products = () => {
-    // Get Product list form backend
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    useEffect(() => {
-        const fetchCategory = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await axios.get('api/product', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                setProducts(response.data);
-                setLoading(false);
-                setError(null);
-            } catch (error) {
-                console.error("product error:", error);
-                if (error.response) {
-                    setError(`Failed to fetch products: Status ${error.response.status}`)
-                } else {
-                    setError(`Network Error: ${error.message}`)
-                }
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchCategory();
-    }, [])
-    // Product Like Button
-    const handleLike = async (productId) => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            toast.error('Please login first to like this product');
-            return;
-        }
-        try {
-            const response = await axios.post(`/api/product/${productId}/like`, {}, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            setProducts(prev => prev.map(p =>
-                p.id === productId ? { ...p, like_count: response.data.like_count, is_liked: response.data.status === "liked" } : p
-            ));
-            toast.success(response.data.status === 'liked' ? "Liked ❤️" : "Unliked 🤍", { id: 'like', duration: 4000 })
-        } catch (error) {
-            toast.error('Error updating like', { duration: 4000 })
-        }
-    }
+    const {
+        products,
+        loading,
+        error,
+        liking,
+        handleLike
+    } = useProduct();
     if (loading) {
         return <div className="text-danger text-center my-5">Loading data.....</div>
     }
@@ -94,17 +49,29 @@ const Products = () => {
                                 {/* Card Footer: Engagement Icons */}
                                 <div className="card-footer">
                                     <div className="d-flex justify-content-around align-items-center">
-                                        <div className="icon-action" onClick={() => handleLike(product.id)} style={{ cursor: 'pointer' }}>
-                                            <i className={`bi ${product.is_liked ? 'bi-heart-fill text-danger' : 'bi-heart'} me-1`} />
+                                        <button
+                                            type="button"
+                                            className="icon-action border-0 bg-transparent"
+                                            onClick={() => handleLike(product.id)}
+                                            disabled={liking}
+                                            style={{ cursor: liking ? 'not-allowed' : 'pointer' }}
+                                        >
+                                            <i
+                                                className={`bi ${product.is_liked
+                                                    ? 'bi-heart-fill text-danger'
+                                                    : 'bi-heart'
+                                                    } me-1`}
+                                            />
+
                                             <small>{product.like_count}</small>
-                                        </div>
+                                        </button>
                                         <div className="icon-action" title="View">
                                             <i className="bi bi-eye me-1" />
                                             <small>{product.view_count}</small>
                                         </div>
                                         <div className="icon-action" title="Comment">
                                             <i className="bi bi-chat-dots me-1" />
-                                            <small>{product.review.length}</small>
+                                            <small>{product.review_count}</small>
                                         </div>
                                     </div>
                                 </div>
