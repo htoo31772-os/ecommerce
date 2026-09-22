@@ -23,7 +23,7 @@ class CartController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|min:1'
+            'quantity' => 'required|integer|min:1'
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -38,7 +38,7 @@ class CartController extends Controller
 
         $cartItem = Cart::where('product_id', $product_id)->where('user_id', $user->id)->first();
         if ($cartItem) {
-            $newQuantity = $cartItem->quantity += $quantity;
+            $newQuantity = $cartItem->quantity + $quantity;
             if ($newQuantity > $product->stock) {
                 return response()->json([
                     'status' => 'error',
@@ -50,7 +50,7 @@ class CartController extends Controller
             return response()->json([
                 'status' => 'success',
                 'cart' => $cartItem,
-            ], 201);
+            ], 200);
         } else {
             if ($quantity > $product->stock) {
                 return response()->json([

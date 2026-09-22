@@ -1,10 +1,9 @@
-import axios from "axios";
-import React, { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import toast from "react-hot-toast";
-import { Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import { AuthContext } from "../context/authContext.jsx";
 import { authService } from "../service/authServices";
-import {getStorageImage} from "../Utils/useImage";
+import { getStorageImage } from "../Utils/useImage";
 
 const Header = () => {
     const { isLogin, setIsLogin, cartUpdateCount, user, setUser, cartCount } = useContext(AuthContext);
@@ -127,7 +126,7 @@ const Header = () => {
                     {/* Right Icons */}
                     <div className="d-flex align-items-center">
                         <Link to='/profile' className="nav-link mx-2" title="Account">
-                            <img src={getStorageImage(user?.image_url,'profile')} className="img img-fluid rounded-pill" alt="User Image" style={{ height: '25px', width: '25px' }} />
+                            <img src={getStorageImage(user?.image_url, 'profile')} className="img img-fluid rounded-pill" alt="User Image" style={{ height: '25px', width: '25px' }} />
                             <span className="d-lg-none ms-2">Account</span>
                         </Link>
                         <Link to='/cart' className="nav-link ms-2" title="Cart">
