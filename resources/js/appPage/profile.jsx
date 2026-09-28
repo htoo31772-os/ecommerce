@@ -39,7 +39,7 @@ console.log("Current User Profile:", userProfile);
             <div className="row mb-4">
                 <div className="col-12">
                     <h2 className="fw-bold mb-1">My Profile</h2>
-                    <p className="text-muted">Manage your account settings, profile information, and security.</p>
+                    <p className="text-light">Manage your account settings, profile information, and security.</p>
                 </div>
             </div>
 

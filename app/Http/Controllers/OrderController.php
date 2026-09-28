@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\Address;
@@ -11,7 +10,6 @@ use App\Models\Transaction;
 use App\Models\Order_detail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -22,80 +20,103 @@ class OrderController extends Controller
     {
 
         $validator = validator::make($request->all(), [
-            'shipping.city' => 'required|string|regex:/^[a-zA-Z\s]+$/',
-            'shipping.state' => 'required|string|regex:/^[a-zA-Z\s]+$/',
+            'shipping.city' => 'required|string',
+            'shipping.state' => 'required|string',
             'shipping.postalCode' => 'required',
             'shipping.address' => 'required|string',
             'payment.payment' => 'required',
             'payment.totalAmount' => 'required',
             'payment.transactionId' => 'required|min:6',
             'payment.transactionDate' => 'required|string',
-            'payment.note' => 'nullable|string|regex:/^[a-zA-Z\s]+$/'
+            'payment.note' => 'nullable|string'
         ]);
         if ($validator->fails()) {
             return $this->handleValidationError($validator);
         }
 
         $user = Auth::user();
-        $userId = $user->id;
-        DB::beginTransaction();
         try {
-            // Create Order
-            $order = Order::create([
-                'user_id' => $userId,
-                'order_date' => now(),
-                'total_amount' => $request->grandTotal,
-                'status' => 'pending'
-            ]);
-            // Create Order_detail
-            $totalPrice = 0;
-            foreach ($request->items as $item) {
-                $totalPrice = $item['quantity'] * $item['product']['price'];
-                Order_detail::create([
-                    'order_id' => $order->id,
-                    'product_id' => $item['product']['id'],
-                    'quantity' => $item['quantity'],
-                    'total_price' => $totalPrice
-                ]);
-                $product = Product::find($item['product']['id']);
-                if ($product->stock < $item['quantity']) {
-                    throw new \Exception('Product' . $product->name . 'is out of stock');
+            $order = DB::transaction(function () use ($request, $user) {
+                $cartItems = Cart::where('user_id', $user->id)->get();
+                if ($cartItems->isEmpty()) {
+                    throw new \Exception("Your cart is empty");
                 }
-                $product->decrement('stock', $item["quantity"]);
-            }
-            // Create Transaction
-            Transaction::create([
-                'order_id' => $order->id,
-                'payment_method' => $request->payment['payment'],
-                'amount_paid' => $request->payment['totalAmount'],
-                'transaction_id' => $request->payment['transactionId'],
-                'transaction_date' => $request->payment['transactionDate'],
-                'note' => $request->payment['note'],
-                'status' => 'pending'
-            ]);
-            // Create Shipping Address
-            Address::create([
-                'order_id' => $order->id,
-                'user_id' => $user->id,
-                'city' => $request->shipping['city'],
-                'state' => $request->shipping['state'],
-                'postal_code' => $request->shipping['postalCode'],
-                'address' => $request->shipping['address'],
-                'status' => 'pending'
-            ]);
-            Cart::where('user_id', $user->id)->delete();
-            DB::commit();
+                $totalPrice = 0;
+                $products = [];
+                foreach ($cartItems as $cartItem) {
+                    $product = Product::where('id', $cartItem->product_id)->lockForUpdate()->first();
+                    if (!$product) {
+                        throw new \Exception("Product not found");
+                    }
+                    if ($product->stock < $cartItem->quantity) {
+                        throw new \Exception("Not enougt stock {$product->name}.");
+                    }
+                    $products[$product->id] = $product;
+                    $totalPrice += $cartItem->quantity * $product->price;
+                }
+
+                $shippingFee = 3000;
+                $grandTotal = $totalPrice + $shippingFee;
+
+                $paymentAmount = (float) $request->input('payment.totalAmount');
+                if ($paymentAmount !== (float) $grandTotal) {
+                    throw new \Exception("Payment amount does not match order total.");
+                }
+
+                $order = Order::create([
+                    'user_id' => $user->id,
+                    'order_date' => now(),
+                    'total_amount' => $grandTotal,
+                    'status' => 'pending'
+                ]);
+
+                foreach ($cartItems as $cartItem) {
+                    $product = $products[$cartItem->product->id];
+                    $totalPrice = $cartItem->quantity * $product->price;
+                    Order_detail::create([
+                        'order_id' => $order->id,
+                        'product_id' => $product->id,
+                        'quantity' => $cartItem->quantity,
+                        'total_price' => $totalPrice
+                    ]);
+                    $product->decrement('stock', $cartItem->quantity);
+                }
+
+                // Create Transaction
+                Transaction::create([
+                    'order_id' => $order->id,
+                    'payment_method' => $request->input('payment.payment'),
+                    'amount_paid' => $request->input('payment.totalAmount'),
+                    'transaction_id' => $request->input('payment.transactionId'),
+                    'transaction_date' => $request->input('payment.transactionDate'),
+                    'note' => $request->input('payment.note'),
+                    'status' => 'pending'
+                ]);
+
+                // Create Shipping Address
+                Address::create([
+                    'order_id' => $order->id,
+                    'user_id' => $user->id,
+                    'city' => $request->input('shipping.city'),
+                    'state' => $request->input('shipping.state'),
+                    'postal_code' => $request->input('shipping.postalCode'),
+                    'address' => $request->input('shipping.address'),
+                    'status' => 'pending'
+                ]);
+
+                Cart::where('user_id', $user->id)->delete();
+
+                return $order;
+            });
             return response()->json([
                 'status' => 'success',
-                'message' => 'Order place successfully',
-                'order_id' => $order->id
+                'message' => 'Order placed successfully.',
+                'order_id' => $order->id,
             ], 201);
         } catch (\Exception $e) {
-            DB::rollBack();
             return response()->json([
                 'status' => 'error',
-                'message' => 'Something went wrong: ',
-                $e->getMessage()
+                'message' => $e->getMessage()
             ], 500);
         }
     }

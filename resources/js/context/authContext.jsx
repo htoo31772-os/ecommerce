@@ -1,5 +1,5 @@
-import React, { createContext, useEffect, useState } from "react";
-import Login from "../appPage/login";
+import { createContext, useEffect, useState } from "react";
+import api from "../service/api";
 export const AuthContext = createContext();
 const AuthProvider = ({ children }) => {
     const [isLogin, setIsLogin] = useState(false);
@@ -21,18 +21,9 @@ const AuthProvider = ({ children }) => {
     }, []);
     // Cart Count
     const fetchCartCount = async () => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            setCartCount(0);
-            return;
-        }
         try {
-            const response = await axios.get('/api/cart', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            setBookingCount(response.data.count || 0);
+            const response = await api.get('/api/cart')
+            setCartCount(response.data.count || 0);
         } catch (error) {
             setCartCount(0);
         }
@@ -40,7 +31,7 @@ const AuthProvider = ({ children }) => {
     }
     useEffect(() => { fetchCartCount(); }, [isLogin, cartUpdateCount]);
     return (
-        <AuthContext.Provider value={{ setUser, user, isLogin, setIsLogin, cartCount, setCartCount, cartUpdateCount, fetchCartCount }}>
+        <AuthContext.Provider value={{ setUser, user, isLogin, setIsLogin, cartCount, setCartCount, cartUpdateCount, fetchCartCount, handleCartCount }}>
             {children}
         </AuthContext.Provider>
     )

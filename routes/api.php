@@ -31,7 +31,8 @@ Route::middleware('auth:sanctum')->group(function () {
      // Cart List
     Route::get('/cart',[CartController::class,'cartCount'])->name('cart.cartCount');
     Route::get('/cart/index',[CartController::class,'index'])->name('cart.index');
-    Route::delete('/cart/removeItem/{itemId}',[CartController::class,'removeItem'])->name('cart.removeItem');
+    Route::patch('/cart/{cartId}/quantity',[CartController::class,'updateQuantity']);
+    Route::delete('/cart/removeItem/{cart}',[CartController::class,'removeItem'])->name('cart.removeItem');
     Route::delete('/cart/cancleAllItem',[CartController::class,'cancle'])->name('cart.cancle');
     Route::post('/cart/order',[OrderController::class,'order'])->name('cart.order');
 });

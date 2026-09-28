@@ -2,19 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Address;
+
 use App\Models\Cart;
-use App\Models\Order;
-use App\Models\Order_detail;
 use App\Models\Product;
-use App\Models\Transaction;
-use Dflydev\DotAccessData\Data;
-use Faker\Provider\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use PhpParser\Node\Stmt\TryCatch;
 
 class CartController extends Controller
 {
@@ -32,54 +25,50 @@ class CartController extends Controller
             ], 422);
         }
         $user = Auth::user();
-        $product_id = $request->input('product_id');
-        $quantity = $request->input('quantity');
-        $product = Product::find($product_id);
 
-        $cartItem = Cart::where('product_id', $product_id)->where('user_id', $user->id)->first();
+        $product = Product::findOrFail($request->product_id);
+
+        $cartItem = Cart::where('product_id', $product->id)->where('user_id', $user->id)->first();
         if ($cartItem) {
-            $newQuantity = $cartItem->quantity + $quantity;
+            $newQuantity = $cartItem->quantity + $request->quantity;
             if ($newQuantity > $product->stock) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Not enough quantity to buy'
                 ], 422);
             }
-            $cartItem->quantity = $newQuantity;
-            $cartItem->save();
-            return response()->json([
-                'status' => 'success',
-                'cart' => $cartItem,
-            ], 200);
-        } else {
-            if ($quantity > $product->stock) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Not enough quantity to buy'
-                ], 422);
-            }
-            $newCartItem = Cart::create([
-                'user_id' => $user->id,
-                'product_id' => $product_id,
-                'quantity' => $quantity,
+            $cartItem->update([
+                'quantity' => $newQuantity,
             ]);
+
             return response()->json([
                 'status' => 'success',
-                'cart' => $newCartItem
-            ], 201);
+                'message' => 'Cart updated successfully.',
+                'cart' => $cartItem->load('product')
+            ], 200);
         }
+        if ($request->quantity > $product->stock) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Not enough quantity to buy'
+            ], 422);
+        }
+        $newCartItem = Cart::create([
+            'user_id' => $user->id,
+            'product_id' => $product->id,
+            'quantity' => $request->quantity,
+        ]);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Product added to cart.',
+            'cart' => $newCartItem->load('product')
+        ], 201);
     }
     // Cart Count
     public function cartCount()
     {
-        $userId = Auth::user()->id;
-        $cartCount = Cart::with('products')->where('user_id', $userId)->count();
-        if ($cartCount === 0) {
-            return response()->json([
-                'message' => 'There is cart data',
-                'count' => 0
-            ], 200);
-        }
+        $userId = Auth::id();
+        $cartCount = Cart::where('user_id', $userId)->count();
         return response()->json([
             'count' => $cartCount
         ], 200);
@@ -89,35 +78,71 @@ class CartController extends Controller
     {
         $userId = Auth::user()->id;
         $cartItems = Cart::with('product')->where('user_id', $userId)->get();
-        if (!$cartItems) {
+        return response()->json($cartItems, 200);
+    }
+    // Update Quantity
+    public function updateQuantity(Request $request, $cartId)
+    {
+        $validator = validator::make($request->all(), [
+            'quantity' => 'required|integer|min:1'
+        ]);
+        if ($validator->fails()) {
             return response()->json([
-                'message' => 'There is no cart itmes',
-                'cartItems' => []
-            ], 200);
+                'status' => 'error',
+                'message' => 'Quantity do not found'
+            ], 422);
         }
-        return response()->json($cartItems);
+        $user = Auth::user();
+        $cartItem = Cart::where('id', $cartId)->where('user_id', $user->id)->with('product')->first();
+        if (!$cartItem) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Cart item not found.'
+            ], 404);
+        }
+        $quantity = $request->quantity;
+        if ($quantity > $cartItem->product->stock) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Not enough stock available.'
+            ], 422);
+        }
+        $cartItem->update([
+            'quantity' => $quantity
+        ]);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Cart quantity updated successfully.',
+            'cartItem' => $cartItem->fresh('product')
+        ], 200);
     }
     // Reomve Item
-    public function removeItem($itemId)
+    public function removeItem(Request $request, Cart $cart)
     {
-        $user = Auth::user();
-        Cart::where('id', $itemId)->where('user_id', $user->id)->delete();
-        $count = Cart::where('user_id', $user->id)->count();
+        if ($cart->user_id !== $request->user()->id) {
+            return response()->json([
+                'message' => 'Unauthorized.'
+            ], 403);
+        }
+        $cart->delete();
         return response()->json([
-            'message' => 'Item deleted successfully',
-            'count' => $count
-        ], 200);
+            'message' => 'Item removed successfully.',
+        ]);
     }
     // Cancle All Itmes
     public function cancle()
     {
         $user = Auth::user();
-        Cart::where('user_id', $user->id)->delete();
+        $deleted = Cart::where('user_id', $user->id)->delete();
+        if (!$deleted) {
+            return response()->json([
+                'message' => 'Fail remove all item.'
+            ], 404);
+        }
         $count = Cart::where('user_id', $user->id)->count();
         return response()->json([
             'message' => 'Remove all items',
             'count' => $count
         ], 200);
     }
-
 }
