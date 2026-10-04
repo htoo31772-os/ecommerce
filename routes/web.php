@@ -13,13 +13,13 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::middleware(['user'])->group(function () {
+Route::middleware(['guest:admin','user'])->group(function () {
     Route::get('/admin/showRegister', [AdminController::class, 'showRegister'])->name('admin.showRegister');
     Route::post('/admin/register', [AdminController::class, 'register'])->name('admin.register');
     Route::get('/admin/showLogin', [AdminController::class, 'showLogin'])->name('admin.showLogin');
     Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login');
 });
-Route::middleware(['admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth:admin','admin'])->prefix('admin')->group(function () {
     Route::middleware(['prevent-back-history'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard');
         Route::post('/logout', [AdminController::class, 'logout'])->name('admin.logout');

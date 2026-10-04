@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useProduct } from '../hook/useProduct';
+import { getStorageImage } from '../Utils/useImage';
 const Products = () => {
     const {
         products,
@@ -24,7 +25,7 @@ const Products = () => {
                             <div className="card h-100 product-card">
                                 {/* Product Image */}
                                 <img
-                                    src={product.image_url}
+                                    src={getStorageImage(product.image,'product')}
                                     className="card-img-top"
                                     alt={product.name}
                                 />

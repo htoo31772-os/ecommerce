@@ -19,11 +19,6 @@ class Product extends Model
         'like_count',
         'view_count'
     ];
-    protected $appends = ['image_url'];
-    public function getImageUrlAttribute()
-    {
-        return asset('storage/product/' . $this->image);
-    }
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);

@@ -76,21 +76,37 @@ class HomeController extends Controller
     // Feature
     public function feature()
     {
-        $trendyProduct = Product::withCount('likes')
-            ->orderBy('like_count', 'desc')
-            ->take(3)
-            ->get();
-        $bestSeller = Product::select('products.*', DB::raw('SUM(order_details.quantity) as total_sold'))
+        $bestSeller = Product::query()
             ->join('order_details', 'products.id', '=', 'order_details.product_id')
-            ->groupBy('products.id')
-            ->orderBy('total_sold', 'desc')
-            ->take(3)
+            ->select(
+                'products.id',
+                'products.name',
+                'products.price',
+                'products.image'
+            )
+            ->selectRaw('SUM(order_details.quantity) as total_sold')
+            ->groupBy(
+                'products.id',
+                'products.name',
+                'products.price',
+                'products.image'
+            )
+            ->orderByDesc('total_sold')
+            ->limit(3)
             ->get();
-        $brands = Brand::get();
+
+        $trendyProduct = Product::query()
+            ->withCount('likes')
+            ->orderByDesc('likes_count')
+            ->limit(3)
+            ->get();
+
+        $brands = Brand::all();
+
         return response()->json([
-            'trendy' => $trendyProduct,
             'bestSeller' => $bestSeller,
-            'brand' => $brands
+            'trendy' => $trendyProduct,
+            'brand' => $brands,
         ]);
     }
 }

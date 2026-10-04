@@ -12,12 +12,6 @@ class Brand extends Model
         'image',
         'description'
     ];
-
-    protected $appends = ['image_url'];
-    public function getImageUrlAttribute()
-    {
-        return asset('storage/brand/' . $this->image);
-    }
     public function product():HasMany{
         return $this->hasMany(Product::class);
     }

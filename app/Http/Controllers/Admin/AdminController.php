@@ -45,6 +45,7 @@ class AdminController extends Controller
 
         $data = $request->only('email', 'password');
         if (Auth::guard('admin')->attempt($data)) {
+            $request->session()->regenerate();
             return redirect()->route('admin.dashboard')->with(['success' => 'Welcome Back']);
         }
         return redirect()->back()->with(['error' => 'Invalid email & password']);

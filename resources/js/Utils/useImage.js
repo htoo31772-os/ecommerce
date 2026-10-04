@@ -1,15 +1,19 @@
-export const getStorageImage = (imageName,folder) => {
-    const baseUrl = import.meta.env.VITE_API_URL|| 'http://localhost:8000';
-    if (!imageName) return './images/user.jpg';
+export const getStorageImage = (imageName, folder, fallback = './images/user.jpg') => {
+    const baseUrl =
+        import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
     if (!imageName || imageName === 'null' || imageName === 'undefined') {
-        return './images/user.jpg';
+        return fallback;
     }
-    if (imageName.startsWith('http://')) {
+
+    if (imageName.startsWith('http://') || imageName.startsWith('https://')) {
         return imageName;
     }
+
     if (!folder) {
         console.warn('Storage folder is missing!');
-        return './images/user.jpg';
+        return fallback;
     }
-    return `${baseUrl}/storage/${folder}/${imageName}`
-}
+
+    return `${baseUrl}/storage/${folder}/${imageName}`;
+};

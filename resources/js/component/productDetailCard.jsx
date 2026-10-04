@@ -12,7 +12,7 @@ const {isLogin}=useContext(AuthContext);
             <div className="row g-5">
                 <div className="col-lg-6">
                     <img
-                        src={getStorageImage(product.image_url, 'product')}
+                        src={getStorageImage(product.image, 'product')}
                         className="img-fluid rounded-3 mb-3"
                         alt="Product Image"
                     />

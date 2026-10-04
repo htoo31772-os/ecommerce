@@ -1,5 +1,6 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
+import api from '../service/api';
+import {getStorageImage} from '../Utils/useImage';
 const Feature = () => {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -9,16 +10,15 @@ const Feature = () => {
     useEffect(() => {
         const fetchFeature = async () => {
             try {
-                const response = await axios.get('api/feature')
+                const response = await api.get('api/feature')
                 setBrands(response.data.brand);
                 setSellerProduct(response.data.bestSeller);
-                setTrendProduct(response.data.trendy)
-                setLoading(false)
+                setTrendProduct(response.data.trendy);
                 setError(null)
             } catch (error) {
-                setError(error.message||'Failed to load data...')
+                setError(error.message || 'Failed to load data...')
             } finally {
-                setLoading(null)
+                setLoading(false)
             }
         }
         fetchFeature();
@@ -44,7 +44,7 @@ const Feature = () => {
                                 <a key={seller.id} href="#" className="list-group-item list-group-item-action featured-list-item px-0"
                                 >
                                     <img
-                                        src={seller.image_url}
+                                        src={getStorageImage(seller.image, 'product')}
                                         alt="Product"
                                     />
                                     <div className="flex-grow-1">
@@ -66,7 +66,7 @@ const Feature = () => {
                                     className="list-group-item list-group-item-action featured-list-item px-0"
                                 >
                                     <img
-                                        src={trend.image_url}
+                                        src={getStorageImage(trend.image,'product')}
                                         alt="Product"
                                     />
                                     <div className="flex-grow-1">
@@ -85,7 +85,7 @@ const Feature = () => {
                             {brands.map(brand => (
                                 <div key={brand.id} className="col brand-item">
                                     <img
-                                        src={brand.image_url}
+                                        src={getStorageImage(brand.image,'brand')}
                                         alt={brand.name}
                                         className="img-fluid"
                                     />
